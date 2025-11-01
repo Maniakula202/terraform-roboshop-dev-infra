@@ -30,4 +30,3 @@ resource "terraform_data" "mongodb" {
         ]
     }
 }
-sadvfgn
