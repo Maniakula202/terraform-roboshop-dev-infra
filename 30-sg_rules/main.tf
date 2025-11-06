@@ -42,3 +42,12 @@ resource "aws_security_group_rule" "bastion_rabbitmq" {
   source_security_group_id = local.bastion_sg_id
   security_group_id = local.rabbitmq_sg_id
 }
+
+resource "aws_security_group_rule" "bastion_mysql" {
+  type              = "ingress"
+  to_port           = 22
+  protocol          = "tcp"
+  from_port         = 22
+  source_security_group_id = local.bastion_sg_id
+  security_group_id = local.mysql_sg_id
+}

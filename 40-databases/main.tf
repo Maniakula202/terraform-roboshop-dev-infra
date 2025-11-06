@@ -153,7 +153,7 @@ resource "terraform_data" "mysql" {
     host     = aws_instance.mysql.private_ip
   }
 
-  # terraform copies this file to rabbitmq server
+  # terraform copies this file to mysql server
   provisioner "file" {
     source = "bootstrap.sh"
     destination = "/tmp/bootstrap.sh"
