@@ -69,3 +69,12 @@ resource "aws_security_group_rule" "catalogue_mongodb" {
   source_security_group_id = local.catalogue_sg_id
   security_group_id = local.mongodb_sg_id
 }
+
+resource "aws_security_group_rule" "backend_alb_catalogue" {
+  type              = "ingress"
+  to_port           = 8080
+  protocol          = "tcp"
+  from_port         = 8080
+  source_security_group_id = local.backend_alb_sg_id
+  security_group_id = local.catalogue_sg_id
+}
