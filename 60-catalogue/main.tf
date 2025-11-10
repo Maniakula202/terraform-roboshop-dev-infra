@@ -86,6 +86,9 @@ resource "aws_launch_template" "catalogue" {
   instance_type = "t3.micro"
   vpc_security_group_ids = [local.catalogue_sg_id]
 
+  # when we run terraform apply again, a new version will be created with new AMI ID
+#   update_default_version = true
+
   tag_specifications {
     resource_type = "instance"
 
@@ -131,6 +134,14 @@ resource "aws_autoscaling_group" "catalogue" {
     vpc_zone_identifier       = local.private_subnet_ids
     target_group_arns = [aws_lb_target_group.catalogue.arn]
 
+    # instance_refresh {
+    #     strategy = "Rolling"
+    #     preferences {
+    #         min_healthy_percentage = 50
+    #     }
+    #     triggers = ["launch_template"]
+    # }
+
     dynamic "tag" {  # we will get the iterator with name as tag
         for_each = merge(
         local.common_tags,
@@ -150,7 +161,7 @@ resource "aws_autoscaling_group" "catalogue" {
     } 
 }
 
-resource "aws_autoscaling_policy" "example" {
+resource "aws_autoscaling_policy" "catalogue" {
     autoscaling_group_name = aws_autoscaling_group.catalogue.name
     name                   = "${var.project_name}-${var.environment}-catalogue"
     policy_type            = "TargetTrackingScaling"
@@ -180,13 +191,13 @@ resource "aws_lb_listener_rule" "catalogue" {
   }
 }
 
-# resource "terraform_data" "catalogue_local" {
-#   triggers_replace = [
-#     aws_instance.catalogue.id
-#   ]
+resource "terraform_data" "catalogue_local" {
+  triggers_replace = [
+    aws_instance.catalogue.id
+  ]
   
-#   depends_on = [aws_autoscaling_policy.catalogue]
-#   provisioner "local-exec" {
-#     command = "aws ec2 terminate-instances --instance-ids ${aws_instance.catalogue.id}"
-#   }
-# }
+  depends_on = [aws_autoscaling_policy.catalogue]
+  provisioner "local-exec" {
+    command = "aws ec2 terminate-instances --instance-ids ${aws_instance.catalogue.id}"
+  }
+}
